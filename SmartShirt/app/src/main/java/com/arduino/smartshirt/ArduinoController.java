@@ -1,43 +1,65 @@
 package com.arduino.smartshirt;
 
+import android.util.Log;
+
 /**
  * Created by levistarrett on 10/18/14.
  */
-public class ArduinoController implements NavInterface {
+public class ArduinoController {
 
     // CONSTANTS
     private static final String ARDUINO_HOST = "192.168.240.1/arduino/digital";
     private static final int LEFT_PIN = 12;
     private static final int RIGHT_PIN = 11;
+    private static final int REROUTE_PIN = 10;
+    private static final int ARRIVED_PIN = 9;
 
 
     // send turn left signal to Arduino
-    public void turnLeft(String details) {
+    public void turnLeft() {
         // http interface
         AsyncHTTPGetter getter = new AsyncHTTPGetter();
 
-        StringBuilder url = new StringBuilder();
-        url.append("http://");                         // add the protocol
-        url.append(ARDUINO_HOST);                        // add the host
-        url.append("/");                               // add separator
-        url.append(LEFT_PIN);                          // add pin specifier
-        url.append("/1");                              // write a 1
+        // format url string
+        String url = String.format("http://%s/%d/1", ARDUINO_HOST, LEFT_PIN);
 
+        Log.d("LOG", "HTTP/GET: " + url);
         getter.execute(url.toString());
     }
 
     // send turn right signal to Arduino
-    public void turnRight(String details) {
+    public void turnRight() {
         // http interface
         AsyncHTTPGetter getter = new AsyncHTTPGetter();
 
-        StringBuilder url = new StringBuilder();
-        url.append("http://");                         // add the protocol
-        url.append(ARDUINO_HOST);                        // add the host
-        url.append("/");                               // add separator
-        url.append(RIGHT_PIN);                         // add pin specifier
-        url.append("/1");                              // write a 1
+        // format url string
+        String url = String.format("http://%s/%d/1", ARDUINO_HOST, RIGHT_PIN);
 
+        Log.d("LOG", "HTTP/GET: " + url);
+        getter.execute(url.toString());
+    }
+
+    // send reroute Arduino
+    public void reroute() {
+        // http interface
+        AsyncHTTPGetter getter = new AsyncHTTPGetter();
+
+        // format url string
+        String url = String.format("http://%s/%d/1", ARDUINO_HOST, REROUTE_PIN);
+
+        Log.d("LOG", "HTTP/GET: " + url);
+        getter.execute(url.toString());
+    }
+
+    // send arrived Arduino
+    public void arrived() {
+        // http interface
+        AsyncHTTPGetter getter = new AsyncHTTPGetter();
+
+        // format url string
+        String url = String.format("http://%s/%d/1", ARDUINO_HOST, ARRIVED_PIN);
+
+        Log.d("LOG", "HTTP/GET: " + url);
         getter.execute(url.toString());
     }
 

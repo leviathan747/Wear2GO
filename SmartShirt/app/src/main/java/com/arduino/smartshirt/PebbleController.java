@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * Created by levistarrett on 10/18/14.
  */
-public class PebbleController implements NavInterface {
+public class PebbleController {
 
     // parent app pointer
     private Application parentApp;
@@ -23,20 +23,16 @@ public class PebbleController implements NavInterface {
         this.parentApp = parentApp;
     }
 
-    // turn left signals
-    public void turnLeft(String details) {
-        sendAlertToPebble("Turn Left", details);
-    }
-
-    // turn right signals
-    public void turnRight(String details) {
-        sendAlertToPebble("Turn Right", details);
-    }
-
     // send alert to pebble
-    private void sendAlertToPebble(String title, String body) {
+    public void sendNotification(String title, String body) {
+        // validate arguments
+        if (title == null) title = "";
+        if (body == null) body = "";
+
+        // create intent to send notif
         final Intent i = new Intent("com.getpebble.action.SEND_NOTIFICATION");
 
+        // build notification object
         final Map data = new HashMap();
         data.put("title", title);
         data.put("body", body);
@@ -47,6 +43,7 @@ public class PebbleController implements NavInterface {
         i.putExtra("sender", "SmartShirt");
         i.putExtra("notificationData", notificationData);
 
+        // send it
         Log.d("LOG", "About to send a modal alert to Pebble: " + notificationData);
         ((SmartShirt) this.parentApp).sendBroadcast(i);
     }
