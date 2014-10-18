@@ -3,4 +3,16 @@
 
     <string name="app_name">SmartShirt</string>
 
+    <string name="arduino_label">Arduino Events</string>
+    <string name="left">Left</string>
+    <string name="right">Right</string>
+    <string name="reroute">Reroute</string>
+    <string name="arrived">Arrived</string>
+    <string name="blip">Blip</string>
+
+    <string name="pebble_label">Pebble Events</string>
+    <string name="pebble_head">Enter a heading</string>
+    <string name="pebble_body">Enter a body</string>
+    <string name="send">Send Notification</string>
+
 </resources>
