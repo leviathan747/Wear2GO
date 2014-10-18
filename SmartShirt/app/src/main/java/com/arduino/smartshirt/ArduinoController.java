@@ -12,7 +12,7 @@ public class ArduinoController implements NavInterface {
 
 
     // send turn left signal to Arduino
-    public void turnLeft() {
+    public void turnLeft(String details) {
         // http interface
         AsyncHTTPGetter getter = new AsyncHTTPGetter();
 
@@ -27,7 +27,7 @@ public class ArduinoController implements NavInterface {
     }
 
     // send turn right signal to Arduino
-    public void turnRight() {
+    public void turnRight(String details) {
         // http interface
         AsyncHTTPGetter getter = new AsyncHTTPGetter();
 

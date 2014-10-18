@@ -10,6 +10,7 @@ import android.util.Log;
 public class SmartShirt extends Application {
 
     public NavInterface arduino_controller = new ArduinoController();
+    public NavInterface pebble_controller = new PebbleController(this);
 
     /* STANDARD OVERRIDE METHODS */
     @Override

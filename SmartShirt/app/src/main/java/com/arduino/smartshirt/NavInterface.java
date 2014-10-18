@@ -6,9 +6,9 @@ package com.arduino.smartshirt;
 public interface NavInterface {
 
     // turn left signal
-    public void turnLeft();
+    public void turnLeft(String details);
 
     // turn right signal
-    public void turnRight();
+    public void turnRight(String details);
 
 }
