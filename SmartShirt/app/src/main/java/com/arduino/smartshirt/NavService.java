@@ -16,6 +16,10 @@ import java.io.PrintStream;
  * Created by kylekrynski on 10/18/14.
  */
 public class NavService extends NotificationListenerService {
+    /* LOCAL VARIABLES */
+    private String prevSent = " ";
+    /* END LOCAL VARIABLES */
+
 
     /* ABSTRACT METHODS SECTION */
     @Override
@@ -23,9 +27,12 @@ public class NavService extends NotificationListenerService {
         try {
             if (sbn.getPackageName().equals("com.google.android.apps.maps")) {    //Only saving map package notifications
                 Log.d("LOG", "*****NOTIFICATION-INFO: "+ sbn.getId() + "---" + sbn.getNotification().tickerText + "---" + sbn.getPackageName());  //Logging all maps notifications
-                Log.d("LOG", "*****NOTIFICATION: " + sbn.getNotification().extras.getCharSequence(Notification.EXTRA_TEXT));  //Logging all maps notification info text
+                CharSequence extraTextChar = sbn.getNotification().extras.getCharSequence(Notification.EXTRA_TEXT);
+                Log.d("LOG", "*****NOTIFICATION: " + extraTextChar);  //Logging all maps notification info text
 
-                CreateExternalLogFile("\n*" + sbn.getNotification().extras.getCharSequence(Notification.EXTRA_TEXT).toString() + "<");
+                String extraText = extraTextChar.toString();
+                CreateExternalLogFile("\n*" + extraText + "<");
+                parseFromMap(extraText);
             }
         } catch (NullPointerException e) {    //Making sure no nulls try to save
             Log.d("LOG", "*****FILESAVEFAIL: Null extras.");
@@ -61,5 +68,63 @@ public class NavService extends NotificationListenerService {
         }
     }
     /* END LOG SECTION*/
+
+
+    /* PARSING FROM MAP METHODS and CONSTANTS */
+    private void parseFromMap(String extraText) {
+        //Check to see if there is a '-' in the string
+        if (extraText.indexOf('-') != -1) {  //If a dash exists, notification must be location based
+            parseLocationBasedText(extraText);
+        } else if (extraText.charAt(0) == 'H') {  //If a dash does not exist, check for location unknown case
+            parseNoLocationBasedText(extraText);
+        } else if (extraText.charAt(0) == 'R') {   //If no dash and no period, must be at destination
+            sendLostText(extraText);
+        } else {  //Exhausted all other cases, you must be at destination
+            sendDestinationText(extraText);
+        }
+
+    }
+
+    private void parseLocationBasedText(String et) {
+
+    }
+
+    private void parseNoLocationBasedText(String et) {
+
+    }
+
+    /* END PARSING FROM MAP METHODS */
+
+
+    /* SEND METHODS */
+
+    //sending a Lost message - calling methods to send messages to arduino
+    private void sendLostText(String et) {
+        if (prevSent.equals(et)) {   //Dont send a second lost message in a row if this case happens
+            return;
+        }
+
+        //Make alternate buzz on arduino
+
+        //Display Lost message on pebble
+
+        prevSent = et;
+    }
+
+    //sending (no need to parse) a Destination - calling methods to send messages to arduino and pebble
+    private void sendDestinationText(String et) {
+        //No need to check for double request, destination note ends the nav activity
+        //Make all motors buzz on arduino
+
+        //Display final location on pebble
+
+        prevSent = " ";  //set prevSent back to blank state to check for begin nav activity
+    }
+    /* END SEND METHODS */
+
+
+    /* GENERAL STRING METHODS CUSTOM */
+
+    /* END STRING METHODS */
 
 }
