@@ -6,9 +6,9 @@ package com.arduino.smartshirt;
 public class ArduinoController implements NavInterface {
 
     // CONSTANTS
-    private static final String ARDUINO_IP = "192.168.240.1";
-    private static final int LEFT_PIN = 13;
-    private static final int RIGHT_PIN = 14;
+    private static final String ARDUINO_HOST = "192.168.240.1/arduino/digital";
+    private static final int LEFT_PIN = 12;
+    private static final int RIGHT_PIN = 11;
 
 
     // send turn left signal to Arduino
@@ -18,7 +18,7 @@ public class ArduinoController implements NavInterface {
 
         StringBuilder url = new StringBuilder();
         url.append("http://");                         // add the protocol
-        url.append(ARDUINO_IP);                        // add the host
+        url.append(ARDUINO_HOST);                        // add the host
         url.append("/");                               // add separator
         url.append(LEFT_PIN);                          // add pin specifier
         url.append("/1");                              // write a 1
@@ -33,7 +33,7 @@ public class ArduinoController implements NavInterface {
 
         StringBuilder url = new StringBuilder();
         url.append("http://");                         // add the protocol
-        url.append(ARDUINO_IP);                        // add the host
+        url.append(ARDUINO_HOST);                        // add the host
         url.append("/");                               // add separator
         url.append(RIGHT_PIN);                         // add pin specifier
         url.append("/1");                              // write a 1
