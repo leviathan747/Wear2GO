@@ -5,8 +5,8 @@ android {
     buildToolsVersion "20.0.0"
 
     defaultConfig {
-        applicationId "com.example.boilermake.smartshirt"
-        minSdkVersion 17
+        applicationId "com.arduino.smartshirt"
+        minSdkVersion 18
         targetSdkVersion 20
         versionCode 1
         versionName "1.0"

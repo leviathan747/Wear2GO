@@ -1,4 +1,4 @@
-package com.example.boilermake.smartshirt;
+package com.arduino.smartshirt;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
