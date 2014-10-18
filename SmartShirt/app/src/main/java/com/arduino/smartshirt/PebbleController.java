@@ -25,6 +25,8 @@ public class PebbleController {
 
     // send alert to pebble
     public void sendNotification(String title, String body) {
+        Log.d("LOG", "**CALLING: sendNotification() **");
+
         // validate arguments
         if (title == null) title = "";
         if (body == null) body = "";

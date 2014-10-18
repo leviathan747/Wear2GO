@@ -18,6 +18,8 @@ public class ArduinoController {
 
     // send blip signal to Arduino
     public void blip() {
+        Log.d("LOG", "**CALLING: blip() **");
+
         // http interface
         AsyncHTTPGetter getter = new AsyncHTTPGetter();
 
@@ -30,6 +32,8 @@ public class ArduinoController {
 
     // send turn left signal to Arduino
     public void turnLeft() {
+        Log.d("LOG", "**CALLING: turnLeft() **");
+
         // http interface
         AsyncHTTPGetter getter = new AsyncHTTPGetter();
 
@@ -42,6 +46,8 @@ public class ArduinoController {
 
     // send turn right signal to Arduino
     public void turnRight() {
+        Log.d("LOG", "**CALLING: turnRight() **");
+
         // http interface
         AsyncHTTPGetter getter = new AsyncHTTPGetter();
 
@@ -54,6 +60,8 @@ public class ArduinoController {
 
     // send reroute Arduino
     public void reroute() {
+        Log.d("LOG", "**CALLING: reroute() **");
+
         // http interface
         AsyncHTTPGetter getter = new AsyncHTTPGetter();
 
@@ -66,6 +74,8 @@ public class ArduinoController {
 
     // send arrived Arduino
     public void arrived() {
+        Log.d("LOG", "**CALLING: arrived() **");
+
         // http interface
         AsyncHTTPGetter getter = new AsyncHTTPGetter();
 
