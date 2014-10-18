@@ -13,7 +13,20 @@ public class ArduinoController {
     private static final int RIGHT_PIN = 11;
     private static final int REROUTE_PIN = 10;
     private static final int ARRIVED_PIN = 9;
+    private static final int BLIP_PIN = 8;
 
+
+    // send blip signal to Arduino
+    public void blip() {
+        // http interface
+        AsyncHTTPGetter getter = new AsyncHTTPGetter();
+
+        // format url string
+        String url = String.format("http://%s/%d/1", ARDUINO_HOST, BLIP_PIN);
+
+        Log.d("LOG", "HTTP/GET: " + url);
+        getter.execute(url.toString());
+    }
 
     // send turn left signal to Arduino
     public void turnLeft() {
