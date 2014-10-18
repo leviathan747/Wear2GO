@@ -20,10 +20,10 @@ public class NavService extends NotificationListenerService {
     /* ABSTRACT METHODS SECTION */
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
-        Log.d("LOG", "*****NOTIFICATION-INFO: "+ sbn.getId() + "---" + sbn.getNotification().tickerText + "---" + sbn.getPackageName());  //Logging all notifications
-        Log.d("LOG", "*****NOTIFICATION: " + sbn.getNotification().extras.getCharSequence(Notification.EXTRA_TEXT));  //Logging all notification info text
         try {
             if (sbn.getPackageName().equals("com.google.android.apps.maps")) {    //Only saving map package notifications
+                Log.d("LOG", "*****NOTIFICATION-INFO: "+ sbn.getId() + "---" + sbn.getNotification().tickerText + "---" + sbn.getPackageName());  //Logging all maps notifications
+                Log.d("LOG", "*****NOTIFICATION: " + sbn.getNotification().extras.getCharSequence(Notification.EXTRA_TEXT));  //Logging all maps notification info text
 
                 CreateExternalLogFile("\n*" + sbn.getNotification().extras.getCharSequence(Notification.EXTRA_TEXT).toString() + "<");
             }
