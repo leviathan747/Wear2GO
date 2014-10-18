@@ -9,6 +9,8 @@ import android.util.Log;
  */
 public class SmartShirt extends Application {
 
+    public NavInterface arduino_controller = new ArduinoController();
+
     /* STANDARD OVERRIDE METHODS */
     @Override
     public void onCreate() {

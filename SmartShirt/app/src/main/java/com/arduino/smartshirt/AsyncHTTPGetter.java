@@ -1,4 +1,4 @@
-package com.example.boilermake.smartshirt;
+package com.arduino.smartshirt;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -14,7 +14,7 @@ import java.io.InputStreamReader;
 /**
  * Created by levistarrett on 10/18/14.
  */
-public class AsyncHTTPGet extends AsyncTask<String, Void, String> {
+public class AsyncHTTPGetter extends AsyncTask<String, Void, String> {
     @Override
     protected String doInBackground(String... urls) {
         String response = "";
@@ -35,7 +35,6 @@ public class AsyncHTTPGet extends AsyncTask<String, Void, String> {
                 e.printStackTrace();
             }
         }
-        Log.i("TEST", response);
         return response;
     }
 
