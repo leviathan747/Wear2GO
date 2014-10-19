@@ -162,7 +162,7 @@ public class NavService extends NotificationListenerService {
 
     private double distanceInFeet(String s) {
         String[] parts = s.split("\\s+");
-        double dist = Integer.parseInt(parts[0]);  //get distance from string parts
+        double dist = Double.parseDouble(parts[0]);  //get distance from string parts
 
         if (parts[1].equals("mi")) {  //need to convert to mi
             dist = dist * FT_IN_MILE;
