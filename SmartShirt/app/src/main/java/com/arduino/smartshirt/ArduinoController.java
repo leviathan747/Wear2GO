@@ -8,12 +8,12 @@ import android.util.Log;
 public class ArduinoController {
 
     // CONSTANTS
-    private static final String ARDUINO_HOST = "192.168.240.1/arduino/analog";
-    private static final int LEFT_PIN = 5;
-    private static final int RIGHT_PIN = 4;
-    private static final int REROUTE_PIN = 2;
-    private static final int ARRIVED_PIN = 3;
-    private static final int BLIP_PIN = 3;
+    private static final String ARDUINO_HOST = "192.168.240.1/arduino/command";
+    private static final char LEFT_PIN = 'r';
+    private static final char RIGHT_PIN = 'l';
+    private static final char REROUTE_PIN = 'c';
+    private static final char ARRIVED_PIN = 's';
+    private static final char BLIP_PIN = 's';
 
 
     // send blip signal to Arduino
@@ -24,7 +24,7 @@ public class ArduinoController {
         AsyncHTTPGetter getter = new AsyncHTTPGetter();
 
         // format url string
-        String url = String.format("http://%s/%d/1", ARDUINO_HOST, BLIP_PIN);
+        String url = String.format("http://%s/%c", ARDUINO_HOST, BLIP_PIN);
 
         Log.d("LOG", "HTTP/GET: " + url);
         getter.execute(url.toString());
@@ -38,7 +38,7 @@ public class ArduinoController {
         AsyncHTTPGetter getter = new AsyncHTTPGetter();
 
         // format url string
-        String url = String.format("http://%s/%d/1", ARDUINO_HOST, LEFT_PIN);
+        String url = String.format("http://%s/%c", ARDUINO_HOST, LEFT_PIN);
 
         Log.d("LOG", "HTTP/GET: " + url);
         getter.execute(url.toString());
@@ -52,7 +52,7 @@ public class ArduinoController {
         AsyncHTTPGetter getter = new AsyncHTTPGetter();
 
         // format url string
-        String url = String.format("http://%s/%d/1", ARDUINO_HOST, RIGHT_PIN);
+        String url = String.format("http://%s/%c", ARDUINO_HOST, RIGHT_PIN);
 
         Log.d("LOG", "HTTP/GET: " + url);
         getter.execute(url.toString());
@@ -66,7 +66,7 @@ public class ArduinoController {
         AsyncHTTPGetter getter = new AsyncHTTPGetter();
 
         // format url string
-        String url = String.format("http://%s/%d/1", ARDUINO_HOST, REROUTE_PIN);
+        String url = String.format("http://%s/%c", ARDUINO_HOST, REROUTE_PIN);
 
         Log.d("LOG", "HTTP/GET: " + url);
         getter.execute(url.toString());
@@ -80,7 +80,7 @@ public class ArduinoController {
         AsyncHTTPGetter getter = new AsyncHTTPGetter();
 
         // format url string
-        String url = String.format("http://%s/%d/1", ARDUINO_HOST, ARRIVED_PIN);
+        String url = String.format("http://%s/%c", ARDUINO_HOST, ARRIVED_PIN);
 
         Log.d("LOG", "HTTP/GET: " + url);
         getter.execute(url.toString());
