@@ -27,6 +27,7 @@ public class NavService extends NotificationListenerService {
 
     /* LOCAL VARIABLES */
     private String prevSent = " ";
+    private String prevHad = " ";
     private SmartShirt app;
     private ArduinoController ac;
     private PebbleController pc;
@@ -67,6 +68,16 @@ public class NavService extends NotificationListenerService {
             Log.d("REM", "**SERVICE***NOTIFICATION-REMOVE-INFO: "+ sbn.getId() + "---" + sbn.getNotification().tickerText + "---" + sbn.getPackageName());  //Logging all maps notifications
             CharSequence extraTextChar = sbn.getNotification().extras.getCharSequence(Notification.EXTRA_TEXT);
             Log.d("REM", "**SERVICE***NOTIFICATION-REMOVE: " + extraTextChar);  //Logging all maps notification info text
+
+            //Check if the removed notification is the previous one that the service saw
+            String extraText = extraTextChar.toString();
+            if (prevHad.equals(extraText)) {
+                //Reset the previous sent to defualt state
+                //Reset previous had to default state
+                prevSent = " ";
+                prevHad = " ";
+                Log.d("REM", "**SERVICE***REMOVEDSTATE: Successfully reset the service state from a closed navigation activity.");
+            }
         }
     }
     @Override
@@ -117,6 +128,9 @@ public class NavService extends NotificationListenerService {
             ac.blip();
             Log.d("LOG", "**SERVICE***ARDUINO: Sent blip call to arduino interface.");
         }
+        //Save previous had String
+        prevHad = extraText;
+
         //Remove any estimated time from string
         extraText = withoutTime(extraText);
 
@@ -324,7 +338,8 @@ public class NavService extends NotificationListenerService {
         pc.sendNotification("Arrived at:", et);
         Log.d("LOG", "**SERVICE***PEBBLE: Sent destination call to pebble interface.");
 
-        prevSent = " ";  //set prevSent back to blank state to check for begin nav activity
+        //prevSent = " ";  //set prevSent back to blank state to check for begin nav activity
+        //prevHad = " ";   //ONLY SET THEM HERE IF YOU ARE GOING TO RUN A SIMULATION
     }
     /* END SEND METHODS */
 
