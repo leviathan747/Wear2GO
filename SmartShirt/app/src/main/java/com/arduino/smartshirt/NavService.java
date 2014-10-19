@@ -53,6 +53,11 @@ public class NavService extends NotificationListenerService {
 
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
+        if (sbn.getPackageName().equals("com.google.android.apps.maps")) {
+            Log.d("REM", "**SERVICE***NOTIFICATION-REMOVE-INFO: "+ sbn.getId() + "---" + sbn.getNotification().tickerText + "---" + sbn.getPackageName());  //Logging all maps notifications
+            CharSequence extraTextChar = sbn.getNotification().extras.getCharSequence(Notification.EXTRA_TEXT);
+            Log.d("REM", "**SERVICE***NOTIFICATION-REMOVE: " + extraTextChar);  //Logging all maps notification info text
+        }
     }
     @Override
     public void onCreate() {
@@ -160,28 +165,28 @@ public class NavService extends NotificationListenerService {
         String dist = s.substring(0, posOfDash-1);
 
         //Parsing the part after dash upto first return
-        String direction = "";
-        String secondSection = s.substring(posOfDash+2, s.indexOf("\n\n"));
+        String secondSection = s.substring(posOfDash+2, s.indexOf(s.length()));
         String thirdSection = "";
+        String fourthSection = "";
         if (right == 1) {
-            direction = "right";
             secondSection = s.substring(posOfDash+2, s.indexOf("right")+5);
             thirdSection = s.substring(s.indexOf("right")+6, s.indexOf("\n\n"));
             thirdSection = thirdSection + "\n";
+            fourthSection = s.substring(s.indexOf("\n\n")+2, s.length());
         } else if (right == 0) {
-            direction = "left";
             secondSection = s.substring(posOfDash+2, s.indexOf("left")+4);
             thirdSection = s.substring(s.indexOf("left")+5, s.indexOf("\n\n"));
             thirdSection = thirdSection + "\n";
+            fourthSection = s.substring(s.indexOf("\n\n")+2, s.length());
+        } else {
+            thirdSection = secondSection;
+            secondSection = "";
         }
-
-        //Parsing after first return to end
-        String fourthsection = s.substring(s.indexOf("\n\n")+2, s.length());
 
         //Creating output array
         String[] out = new String[2];
         out[0] = dist + ": " + secondSection;
-        out[1] = thirdSection + fourthsection;
+        out[1] = thirdSection + fourthSection;
         return out;
     }
 
@@ -210,7 +215,7 @@ public class NavService extends NotificationListenerService {
         int right = isRightOrLeft(et);
 
         //Make arduino choose proper method if the distance to turn is below limit
-        if (dist < MIN_DISTANCE_ARDUINO_TURN) {
+        if (dist == MIN_DISTANCE_ARDUINO_TURN) {
             Log.d("LOG", "**SERVICE***TURNTYPE: Is right turn: " + Integer.toString(right));
             if (right == 1) {
                 ac.turnRight();
@@ -228,7 +233,7 @@ public class NavService extends NotificationListenerService {
         }
 
         //Make pebble show message, no distance limit
-        if (dist < MIN_DISTANCE_PEBBLE_TURN) {
+        if (dist <= MIN_DISTANCE_PEBBLE_TURN) {
             //Make matcher object
             String[] tnb = parseTitleandBody(et, right);
 
