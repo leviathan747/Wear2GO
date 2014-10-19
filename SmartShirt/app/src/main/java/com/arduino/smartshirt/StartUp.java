@@ -11,6 +11,8 @@ import android.widget.EditText;
 public class StartUp extends Activity {
 
     /* GLOBAL VARIABLES */
+    private final Activity this_activity = this;
+
     SmartShirt app;
 
     Button left;
@@ -87,9 +89,11 @@ public class StartUp extends Activity {
             }
         });
 
+
         test.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                app.tp.runTest();
+                Intent intent = new Intent(this_activity, TestPlatform.class);
+                startActivity(intent);
             }
         });
 

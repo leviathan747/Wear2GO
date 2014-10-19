@@ -12,8 +12,6 @@ public class SmartShirt extends Application {
     public ArduinoController arduino_controller;
     public PebbleController pebble_controller;
 
-    public TestPlatform tp;
-
     /* STANDARD OVERRIDE METHODS */
     @Override
     public void onCreate() {
@@ -22,8 +20,6 @@ public class SmartShirt extends Application {
 
         arduino_controller = new ArduinoController();
         pebble_controller = new PebbleController(this);
-
-        tp = new TestPlatform();
 
     }
 
