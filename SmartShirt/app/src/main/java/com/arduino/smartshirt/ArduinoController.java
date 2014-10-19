@@ -11,9 +11,9 @@ public class ArduinoController {
     private static final String ARDUINO_HOST = "192.168.240.1/arduino/digital";
     private static final int LEFT_PIN = 12;
     private static final int RIGHT_PIN = 11;
-    private static final int REROUTE_PIN = 10;
-    private static final int ARRIVED_PIN = 9;
-    private static final int BLIP_PIN = 8;
+    private static final int REROUTE_PIN = 9;
+    private static final int ARRIVED_PIN = 10;
+    private static final int BLIP_PIN = 10;
 
 
     // send blip signal to Arduino
