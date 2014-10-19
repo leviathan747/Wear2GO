@@ -36,6 +36,16 @@ public class NavService extends NotificationListenerService {
     /* ABSTRACT METHODS SECTION */
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
+        if (sbn.getPackageName().equals(("com.arduino.smartshirt"))) {   //TESTING ONLY
+            Log.d("LOG", "**SERVICE***NOTIFICATION-INFO: "+ sbn.getId() + "---" + sbn.getNotification().tickerText + "---" + sbn.getPackageName());  //Logging all maps notifications
+            CharSequence extraTextChar = sbn.getNotification().extras.getCharSequence(Notification.EXTRA_TEXT);
+            Log.d("LOG", "**SERVICE***NOTIFICATION: " + extraTextChar);  //Logging all maps notification info text
+
+            String extraText = extraTextChar.toString();
+            parseFromMap(extraText);
+            return;
+        }
+
         try {
             if (sbn.getPackageName().equals("com.google.android.apps.maps")) {    //Only saving map package notifications
                 Log.d("LOG", "**SERVICE***NOTIFICATION-INFO: "+ sbn.getId() + "---" + sbn.getNotification().tickerText + "---" + sbn.getPackageName());  //Logging all maps notifications
@@ -43,7 +53,7 @@ public class NavService extends NotificationListenerService {
                 Log.d("LOG", "**SERVICE***NOTIFICATION: " + extraTextChar);  //Logging all maps notification info text
 
                 String extraText = extraTextChar.toString();
-                CreateExternalLogFile("\n*" + extraText + "<");
+                //CreateExternalLogFile("\n*" + extraText + "<");
                 parseFromMap(extraText);
             }
         } catch (NullPointerException e) {    //Making sure no nulls try to save
@@ -115,15 +125,15 @@ public class NavService extends NotificationListenerService {
             Log.d("LOG", "**SERVICE***PARSE: Found location message.");
             Log.d("LOG", "**SERVICE***MESSAGE: " + extraText);
             sendLocationBasedText(extraText);
-        } else if (extraText.charAt(0) == 'H') {  //If start with H, non-location data
+        } else if (extraText.indexOf("Head") != -1) {  //If start with H, non-location data
             Log.d("LOG", "**SERVICE***PARSE: Found non-location message.");
             Log.d("LOG", "**SERVICE***MESSAGE: " + extraText);
             sendNoLocationBasedText(extraText);
-        } else if (extraText.charAt(0) == 'R') {   //If start with R, recalculating
+        } else if (extraText.indexOf("Rerouting...") != -1) {   //If start with R, recalculating
             Log.d("LOG", "**SERVICE***PARSE: Found reroute message.");
             Log.d("LOG", "**SERVICE***MESSAGE: " + extraText);
             sendLostText(extraText);
-        } else if (extraText.charAt(0) == 'S') {   //If searching for GPS
+        } else if (extraText.indexOf("Searching for GPS...") != -1) {   //If searching for GPS
             Log.d("LOG", "**SERVICE***PARSE: Found searching for GPS message.");
             Log.d("LOG", "**SERVICE***MESSAGE: " + extraText);
             sendSearchGPS(extraText);
@@ -165,7 +175,7 @@ public class NavService extends NotificationListenerService {
         String dist = s.substring(0, posOfDash-1);
 
         //Parsing the part after dash upto first return
-        String secondSection = s.substring(posOfDash+2, s.indexOf(s.length()));
+        String secondSection = s.substring(posOfDash+2, s.length());
         String thirdSection = "";
         String fourthSection = "";
         if (right == 1) {
@@ -233,7 +243,7 @@ public class NavService extends NotificationListenerService {
         }
 
         //Make pebble show message, no distance limit
-        if (dist <= MIN_DISTANCE_PEBBLE_TURN) {
+        if (dist < MIN_DISTANCE_PEBBLE_TURN) {
             //Make matcher object
             String[] tnb = parseTitleandBody(et, right);
 
@@ -352,9 +362,9 @@ public class NavService extends NotificationListenerService {
     //return a notification string without its estimated time of arrived, returns original string if cant find removal point
     private String withoutTime (String a) {
         int end = a.length();
-        int curChar = a.charAt(end-1);
+        int curChar = (end-1);
         while (a.charAt(curChar) != '\n') {
-            curChar = curChar - 1;
+            curChar--;
             if (curChar < 0) {
                 Log.d("LOG", "**SERVICE***REMOVAL: Estimated Time Removed Unsuccessfully.");
                 Log.d("LOG", "**SERVICE***REMOVAL: " + a);
