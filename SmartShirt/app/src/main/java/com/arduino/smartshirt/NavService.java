@@ -30,7 +30,6 @@ public class NavService extends NotificationListenerService {
     private SmartShirt app;
     private ArduinoController ac;
     private PebbleController pc;
-    private static final Pattern pLocationData = Pattern.compile("(\\p{Alpha}+) - (\\p{Alpha}+)\\n\\n(\\p{Alpha}+)\\n(\\p{Alpha}+)");
     /* END LOCAL VARIABLES */
 
 
@@ -76,13 +75,15 @@ public class NavService extends NotificationListenerService {
         dir.mkdirs();
         File file = new File(dir, "routeLog.txt");
         try {
-            FileOutputStream f = new FileOutputStream(file,true); //True = Append to file, false = Overwrite
+            boolean b = true;
+            if (prevSent.equals(" ")) {
+                b = false; //True = Append to file, false = Overwrite
+            }
+            FileOutputStream f = new FileOutputStream(file, b);
             PrintStream p = new PrintStream(f);
             p.print(s);
             p.close();
             f.close();
-
-
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             Log.i("LOG", "******* File not found. Did you" +
@@ -101,6 +102,8 @@ public class NavService extends NotificationListenerService {
             ac.blip();
             Log.d("LOG", "**SERVICE***ARDUINO: Sent blip call to arduino interface.");
         }
+        //Remove any estimated time from string
+        extraText = withoutTime(extraText);
 
         //Check to see if there is a '-' in the string
         if (extraText.indexOf('-') != -1) {  //If a dash exists, notification must be location based
@@ -115,6 +118,11 @@ public class NavService extends NotificationListenerService {
             Log.d("LOG", "**SERVICE***PARSE: Found reroute message.");
             Log.d("LOG", "**SERVICE***MESSAGE: " + extraText);
             sendLostText(extraText);
+        } else if (extraText.charAt(0) == 'S') {   //If searching for GPS
+            Log.d("LOG", "**SERVICE***PARSE: Found searching for GPS message.");
+            Log.d("LOG", "**SERVICE***MESSAGE: " + extraText);
+            sendSearchGPS(extraText);
+
         } else {  //Exhausted all other cases, you must be at destination
             Log.d("LOG", "**SERVICE***PARSE: Found destination message.");
             Log.d("LOG", "**SERVICE***MESSAGE: " + extraText);
@@ -134,9 +142,47 @@ public class NavService extends NotificationListenerService {
         return dist;
     }
 
-    private boolean isRight(String s) {
-        String[] parts = s.split("\\s+");
-        return (parts[4].equals("right"));
+    //More robust method to detect right or left turn / merge / other, return 1 if right, 0 if left, -1 if neither
+    private int isRightOrLeft(String s) {
+        if (s.indexOf("right") != -1) {
+            return 1;
+        } if (s.indexOf("left") != -1) {
+            return 0;
+        } else {
+            return -1;
+        }
+    }
+
+    //Parse Location to title and body
+    private String[] parseTitleandBody(String s, int right) {
+        //Parsing up to dash
+        int posOfDash = s.indexOf('-');
+        String dist = s.substring(0, posOfDash-1);
+
+        //Parsing the part after dash upto first return
+        String direction = "";
+        String secondSection = s.substring(posOfDash+2, s.indexOf("\n\n"));
+        String thirdSection = "";
+        if (right == 1) {
+            direction = "right";
+            secondSection = s.substring(posOfDash+2, s.indexOf("right")+5);
+            thirdSection = s.substring(s.indexOf("right")+6, s.indexOf("\n\n"));
+            thirdSection = thirdSection + "\n";
+        } else if (right == 0) {
+            direction = "left";
+            secondSection = s.substring(posOfDash+2, s.indexOf("left")+4);
+            thirdSection = s.substring(s.indexOf("left")+5, s.indexOf("\n\n"));
+            thirdSection = thirdSection + "\n";
+        }
+
+        //Parsing after first return to end
+        String fourthsection = s.substring(s.indexOf("\n\n")+2, s.length());
+
+        //Creating output array
+        String[] out = new String[2];
+        out[0] = dist + ": " + secondSection;
+        out[1] = thirdSection + fourthsection;
+        return out;
     }
 
     /* END PARSING FROM MAP METHODS */
@@ -150,19 +196,28 @@ public class NavService extends NotificationListenerService {
             Log.d("LOG", "**SERVICE***PREVFOUND: Caught repeated message.");
             return;
         }
+        /*  ONLY USE IF WANT TO STOP NOTIFICATION ON AUTO RECALCULATE
+        if (compareMessagesWithoutDest(prevSent, et)) {
+            Log.d("LOG", "**SERVICE***PREVFOUND: Caught repeated TIME location message.");
+            return;
+        } */
+
         //Parse distance in feet from message
         double dist = distanceInFeet(et);
         Log.d("LOG", "**SERVICE***DISTANCE: Calculated distance: " + Double.toString(dist));
 
+        //Parse turn
+        int right = isRightOrLeft(et);
+
         //Make arduino choose proper method if the distance to turn is below limit
         if (dist < MIN_DISTANCE_ARDUINO_TURN) {
-            //Parse turn
-            boolean right = isRight(et);
-            Log.d("LOG", "**SERVICE***TURNTYPE: Is right turn: " + Boolean.toString(right));
-            if (right) {
+            Log.d("LOG", "**SERVICE***TURNTYPE: Is right turn: " + Integer.toString(right));
+            if (right == 1) {
                 ac.turnRight();
-            } else {
+            } else if (right == 0)  {
                 ac.turnLeft();
+            } else {
+                //ARDUINO ON NO TURN BUT DISTANCE TO MANUEVER
             }
             Log.d("LOG", "**SERVICE***ARDUINO: Sent turn call to arduino interface.");
             prevSent = et;
@@ -171,12 +226,10 @@ public class NavService extends NotificationListenerService {
         //Make pebble show message, no distance limit
         if (dist < MIN_DISTANCE_PEBBLE_TURN) {
             //Make matcher object
-            Matcher m = pLocationData.matcher(et);
-            String title = m.group(1);
-            String body = m.group(2) + "\n" + m.group(3) + "\n" + m.group(4);
+            String[] tnb = parseTitleandBody(et, right);
 
-            Log.d("LOG", "**SERVICE***FORMATPCALL: Formatted Pebble interface call, title: " + title + " , body: " + body);
-            pc.sendNotification(title, body);
+            Log.d("LOG", "**SERVICE***FORMATPCALL: Formatted Pebble interface call, title: " + tnb[0] + " , body: " + tnb[1]);
+            pc.sendNotification(tnb[0], tnb[1]);
             Log.d("LOG", "**SERVICE***PEBBLE: Sent turn call to pebble interface.");
             prevSent = et;
         }
@@ -188,10 +241,16 @@ public class NavService extends NotificationListenerService {
             Log.d("LOG", "**SERVICE***PREVFOUND: Caught repeated message.");
             return;
         }
+        /*  ONLY USE IF WANT TO STOP NOTIFICATION ON AUTO RECALCULATE
+        if (compareMessagesWithoutDest(prevSent, et)) {   //Do not resend no location message if only time has changed.
+            Log.d("LOG", "**SERVICE***PREVFOUND: Caught repeated TIME no location message.");
+            return;
+        } */
 
         //Make pebble show complete string
-        String title = et.substring(0, 33);
-        String body = et.substring(35);
+        String title = et.substring(0, et.indexOf("\n\n"));
+        String body = et.substring(et.indexOf("\n\n")+2, et.length());
+
         Log.d("LOG", "**SERVICE***FORMATPCALL: Formatted Pebble interface call, title: " + title + " , body: " + body);
         pc.sendNotification(title, body);
         Log.d("LOG", "**SERVICE***PEBBLE: Sent no location call to pebble interface.");
@@ -217,6 +276,20 @@ public class NavService extends NotificationListenerService {
         prevSent = et;
     }
 
+    //sending a Searching for GPS message - pebble only
+    private void sendSearchGPS(String et) {
+        if (prevSent.equals(et)) {   //Dont send a second lost message in a row if this case happens
+            Log.d("LOG", "**SERVER***PREVFOUND: Caught repeated message.");
+            return;
+        }
+
+        //Display search text on pebble
+        pc.sendNotification("Please Wait", et);
+        Log.d("LOG", "**SERVICE***PEBBLE: Sent search GPS call to pebble interface.");
+
+        prevSent = et;
+    }
+
     //sending (no need to parse) a Destination - arduino and pebble
     private void sendDestinationText(String et) {
         //No need to check for double request, destination note ends the nav activity
@@ -234,6 +307,51 @@ public class NavService extends NotificationListenerService {
 
 
     /* GENERAL STRING METHODS CUSTOM */
+    //compare two messages without their estimated time of arrived, returns null if failure to do different message types
+    private boolean compareMessagesWithoutDest(String a, String b) {
+        String a2 = withoutDest(a);
+        String b2 = withoutDest(b);
+
+        if (a2 == null || b2 == null) {
+            return false;
+        }
+
+        return a2.equals(b2);
+    }
+
+    //return a notification string without its destination distance, returns null if cant find removal point
+    private String withoutDest(String a) {
+        int end = a.length();
+        int curChar = a.charAt(end-1);
+        while (a.charAt(curChar) != '\n') {
+            curChar = curChar - 1;
+            if (curChar < 0) {
+                Log.d("LOG", "**SERVICE***REMOVAL: Estimated Destination Removed Unsuccessfully.");
+                Log.d("LOG", "**SERVICE***REMOVAL: " + a);
+                return null;
+            }
+        }
+        Log.d("LOG", "**SERVICE***REMOVAL: Estimated Destination Removed Successfully.");
+        Log.d("LOG", "**SERVICE***REMOVAL: " + a);
+        return a.substring(0, curChar-1);
+    }
+
+    //return a notification string without its estimated time of arrived, returns original string if cant find removal point
+    private String withoutTime (String a) {
+        int end = a.length();
+        int curChar = a.charAt(end-1);
+        while (a.charAt(curChar) != '\n') {
+            curChar = curChar - 1;
+            if (curChar < 0) {
+                Log.d("LOG", "**SERVICE***REMOVAL: Estimated Time Removed Unsuccessfully.");
+                Log.d("LOG", "**SERVICE***REMOVAL: " + a);
+                return a;
+            }
+        }
+        Log.d("LOG", "**SERVICE***REMOVAL: Estimated Time Removed Successfully.");
+        Log.d("LOG", "**SERVICE***REMOVAL: " + a);
+        return a.substring(0, curChar);
+    }
 
     /* END STRING METHODS */
 
