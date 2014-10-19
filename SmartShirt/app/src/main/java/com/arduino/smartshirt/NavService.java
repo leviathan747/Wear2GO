@@ -22,11 +22,14 @@ public class NavService extends NotificationListenerService {
     /* CONSTANTS */
     private final static double FT_IN_MILE = 5280.0;
     private final static int DISTANCE_ARDUINO_TURN = 50;  //in feet
-    private final static int MIN_DISTANCE_PEBBLE_TURN = 400;  //in feet
+    private final static int MIN_DISTANCE_PEBBLE_TURN = 5280;  //in feet
+    private final static double MIN_STEP = 5280;
     /* END CONSTANTS */
 
     /* LOCAL VARIABLES */
     private String prevSent = " ";
+    private double prevDist = 0;
+    private double prevDistARD = -1;
     private String prevHad = " ";
     private SmartShirt app;
     private ArduinoController ac;
@@ -54,7 +57,7 @@ public class NavService extends NotificationListenerService {
                 Log.d("LOG", "**SERVICE***NOTIFICATION: " + extraTextChar);  //Logging all maps notification info text
 
                 String extraText = extraTextChar.toString();
-                CreateExternalLogFile("\n*" + extraText + "<");
+                //CreateExternalLogFile("\n*" + extraText + "<");    /* COMMENT TO DISABLE OR ENABLE LOG FILE OUTPUT*/
                 parseFromMap(extraText);
             }
         } catch (NullPointerException e) {    //Making sure no nulls try to save
@@ -225,21 +228,22 @@ public class NavService extends NotificationListenerService {
             Log.d("LOG", "**SERVICE***PREVFOUND: Caught repeated message.");
             return;
         }
-        /*  ONLY USE IF WANT TO STOP NOTIFICATION ON AUTO RECALCULATE
+        /*  ONLY USE IF WANT TO STOP NOTIFICATION ON AUTO RECALCULATE */
         if (compareMessagesWithoutDest(prevSent, et)) {
-            Log.d("LOG", "**SERVICE***PREVFOUND: Caught repeated TIME location message.");
+            Log.d("LOG", "**SERVICE***PREVFOUND: Caught repeated DEST location message.");
             return;
-        } */
+        }
 
         //Parse distance in feet from message
         double dist = distanceInFeet(et);
+        double step = Math.abs(dist - prevDist);
         Log.d("LOG", "**SERVICE***DISTANCE: Calculated distance: " + Double.toString(dist));
 
         //Parse turn
         int right = isRightOrLeft(et);
 
         //Make arduino choose proper method if the distance to turn is below limit
-        if (dist == DISTANCE_ARDUINO_TURN) {
+        if (dist == DISTANCE_ARDUINO_TURN /*|| ((dist < DISTANCE_ARDUINO_TURN) && (prevDistARD != DISTANCE_ARDUINO_TURN))*/) {
             Log.d("LOG", "**SERVICE***TURNTYPE: Is right turn: " + Integer.toString(right));
             if (right == 1) {
                 ac.turnRight();
@@ -250,14 +254,16 @@ public class NavService extends NotificationListenerService {
             }
             Log.d("LOG", "**SERVICE***ARDUINO: Sent turn call to arduino interface.");
             prevSent = et;
+            prevDistARD = dist;
         }
         else {
-            Log.d("LOG", "**SERVICE***ABORTCALL: Aborted arduino call because too large distance.");
+            Log.d("LOG", "**SERVICE***ABORTCALL: Aborted arduino call because too distance not correct.");
             Log.d("LOG", "**SERVICE***ABORTDIST: " + Double.toString(dist) + ", PRESET: " + Integer.toString(DISTANCE_ARDUINO_TURN));
+            prevDistARD = dist;
         }
 
         //Make pebble show message, no distance limit
-        if (dist <= MIN_DISTANCE_PEBBLE_TURN) {
+        if ((dist <= MIN_DISTANCE_PEBBLE_TURN) || ((dist > MIN_DISTANCE_PEBBLE_TURN) && (step >= MIN_STEP))) {
             //Make matcher object
             String[] tnb = parseTitleandBody(et, right);
 
@@ -265,10 +271,12 @@ public class NavService extends NotificationListenerService {
             pc.sendNotification(tnb[0], tnb[1]);
             Log.d("LOG", "**SERVICE***PEBBLE: Sent turn call to pebble interface.");
             prevSent = et;
+            prevDist = dist;
         }
         else {
             Log.d("LOG", "**SERVICE***ABORTCALL: Aborted pebble call because too large distance.");
-            Log.d("LOG", "**SERVICE***ABORTDIST: " + Double.toString(dist) + ", PRESET: " + Integer.toString(MIN_DISTANCE_PEBBLE_TURN));
+            Log.d("LOG", "**SERVICE***ABORTDIST: " + Double.toString(dist) + ", PRESET: " + Integer.toString(MIN_DISTANCE_PEBBLE_TURN) + ", STEP: " + Double.toString(MIN_STEP));
+            prevDist = 0;
         }
     }
 
@@ -345,7 +353,7 @@ public class NavService extends NotificationListenerService {
 
 
     /* GENERAL STRING METHODS CUSTOM */
-    //compare two messages without their estimated time of arrived, returns null if failure to do different message types
+    //compare two messages without their estimated time of arrived, returns null if failure due to different message types
     private boolean compareMessagesWithoutDest(String a, String b) {
         String a2 = withoutDest(a);
         String b2 = withoutDest(b);
@@ -360,9 +368,9 @@ public class NavService extends NotificationListenerService {
     //return a notification string without its destination distance, returns null if cant find removal point
     private String withoutDest(String a) {
         int end = a.length();
-        int curChar = a.charAt(end-1);
+        int curChar = (end-1);
         while (a.charAt(curChar) != '\n') {
-            curChar = curChar - 1;
+            curChar--;
             if (curChar < 0) {
                 Log.d("LOG", "**SERVICE***REMOVAL: Estimated Destination Removed Unsuccessfully.");
                 Log.d("LOG", "**SERVICE***REMOVAL: " + a);
