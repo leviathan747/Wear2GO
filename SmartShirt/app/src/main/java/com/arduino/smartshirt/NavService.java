@@ -57,7 +57,7 @@ public class NavService extends NotificationListenerService {
                 Log.d("LOG", "**SERVICE***NOTIFICATION: " + extraTextChar);  //Logging all maps notification info text
 
                 String extraText = extraTextChar.toString();
-                CreateExternalLogFile("\n*" + extraText + "<");
+                //CreateExternalLogFile("\n*" + extraText + "<");    /* COMMENT TO DISABLE OR ENABLE LOG FILE OUTPUT*/
                 parseFromMap(extraText);
             }
         } catch (NullPointerException e) {    //Making sure no nulls try to save
@@ -353,7 +353,7 @@ public class NavService extends NotificationListenerService {
 
 
     /* GENERAL STRING METHODS CUSTOM */
-    //compare two messages without their estimated time of arrived, returns null if failure to do different message types
+    //compare two messages without their estimated time of arrived, returns null if failure due to different message types
     private boolean compareMessagesWithoutDest(String a, String b) {
         String a2 = withoutDest(a);
         String b2 = withoutDest(b);
