@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 public class NavService extends NotificationListenerService {
     /* CONSTANTS */
     private final static double FT_IN_MILE = 5280.0;
-    private final static int MIN_DISTANCE_ARDUINO_TURN = 50;  //in feet
+    private final static int DISTANCE_ARDUINO_TURN = 50;  //in feet
     private final static int MIN_DISTANCE_PEBBLE_TURN = 400;  //in feet
     /* END CONSTANTS */
 
@@ -53,7 +53,7 @@ public class NavService extends NotificationListenerService {
                 Log.d("LOG", "**SERVICE***NOTIFICATION: " + extraTextChar);  //Logging all maps notification info text
 
                 String extraText = extraTextChar.toString();
-                //CreateExternalLogFile("\n*" + extraText + "<");
+                CreateExternalLogFile("\n*" + extraText + "<");
                 parseFromMap(extraText);
             }
         } catch (NullPointerException e) {    //Making sure no nulls try to save
@@ -225,7 +225,7 @@ public class NavService extends NotificationListenerService {
         int right = isRightOrLeft(et);
 
         //Make arduino choose proper method if the distance to turn is below limit
-        if (dist == MIN_DISTANCE_ARDUINO_TURN) {
+        if (dist == DISTANCE_ARDUINO_TURN) {
             Log.d("LOG", "**SERVICE***TURNTYPE: Is right turn: " + Integer.toString(right));
             if (right == 1) {
                 ac.turnRight();
@@ -239,11 +239,11 @@ public class NavService extends NotificationListenerService {
         }
         else {
             Log.d("LOG", "**SERVICE***ABORTCALL: Aborted arduino call because too large distance.");
-            Log.d("LOG", "**SERVICE***ABORTDIST: " + Double.toString(dist) + ", PRESET: " + Integer.toString(MIN_DISTANCE_ARDUINO_TURN));
+            Log.d("LOG", "**SERVICE***ABORTDIST: " + Double.toString(dist) + ", PRESET: " + Integer.toString(DISTANCE_ARDUINO_TURN));
         }
 
         //Make pebble show message, no distance limit
-        if (dist < MIN_DISTANCE_PEBBLE_TURN) {
+        if (dist <= MIN_DISTANCE_PEBBLE_TURN) {
             //Make matcher object
             String[] tnb = parseTitleandBody(et, right);
 
