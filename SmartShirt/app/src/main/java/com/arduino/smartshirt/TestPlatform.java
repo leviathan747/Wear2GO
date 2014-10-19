@@ -28,11 +28,14 @@ import java.util.Scanner;
 /**
  * Created by levistarrett on 10/18/14.
  */
-public class TestPlatform extends Activity {
+public class TestPlatform extends IntentService {
+
+    public TestPlatform() {
+        super("TestPlatform");
+    }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onHandleIntent(Intent workIntent) {
 
         // call test
         runTest();
@@ -104,7 +107,7 @@ public class TestPlatform extends Activity {
     }
 
     // run all tests
-    public void runTest() {
+    private void runTest() {
         // find file
         File sdCard = Environment.getExternalStorageDirectory();
         File dir = new File (sdCard.getAbsolutePath());
@@ -122,8 +125,6 @@ public class TestPlatform extends Activity {
             catch (InterruptedException e) {
             }
         }
-
-        finish();
     }
 
 }

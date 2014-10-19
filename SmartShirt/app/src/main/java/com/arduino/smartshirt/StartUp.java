@@ -93,7 +93,7 @@ public class StartUp extends Activity {
         test.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(this_activity, TestPlatform.class);
-                startActivity(intent);
+                startService(intent);
             }
         });
 
