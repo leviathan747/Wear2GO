@@ -11,6 +11,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by kylekrynski on 10/18/14.
@@ -27,6 +30,7 @@ public class NavService extends NotificationListenerService {
     private SmartShirt app;
     private ArduinoController ac;
     private PebbleController pc;
+    private static final Pattern pLocationData = Pattern.compile("(\\p{Alpha}+) - (\\p{Alpha}+)\\n\\n(\\p{Alpha}+)\\n(\\p{Alpha}+)");
     /* END LOCAL VARIABLES */
 
 
@@ -120,17 +124,6 @@ public class NavService extends NotificationListenerService {
         return (parts[4].equals("right"));
     }
 
-    private String parseTurn(String s) {
-        
-
-    }
-
-    private String parseTurnSupplement(String s) {
-        int posOfDash = s.indexOf('-');
-
-
-    }
-
     /* END PARSING FROM MAP METHODS */
 
 
@@ -153,20 +146,19 @@ public class NavService extends NotificationListenerService {
             } else {
                 ac.turnLeft();
             }
+            prevSent = et;
         }
 
         //Make pebble show message, no distance limit
         if (dist < MIN_DISTANCE_PEBBLE_TURN) {
-            //Parse turn string
-            String title = parseTurn(et);
-            //Parse supplement string
-            String body = parseTurnSupplement(et);
+            //Make matcher object
+            Matcher m = pLocationData.matcher(et);
+            String title = m.group(1);
+            String body = m.group(2) + "\n" + m.group(3) + "\n" + m.group(4);
 
             pc.sendNotification(title, body);
-
+            prevSent = et;
         }
-
-        prevSent = et;
     }
 
     //sending a no location message - arduino and pebble
