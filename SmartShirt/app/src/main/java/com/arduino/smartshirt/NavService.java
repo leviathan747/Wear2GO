@@ -339,7 +339,7 @@ public class NavService extends NotificationListenerService {
         Log.d("LOG", "**SERVICE***PEBBLE: Sent destination call to pebble interface.");
 
         //prevSent = " ";  //set prevSent back to blank state to check for begin nav activity
-        //prevHad = " ";
+        //prevHad = " ";   //ONLY SET THEM HERE IF YOU ARE GOING TO RUN A SIMULATION
     }
     /* END SEND METHODS */
 
