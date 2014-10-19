@@ -39,16 +39,16 @@ public class NavService extends NotificationListenerService {
     public void onNotificationPosted(StatusBarNotification sbn) {
         try {
             if (sbn.getPackageName().equals("com.google.android.apps.maps")) {    //Only saving map package notifications
-                Log.d("LOG", "*****NOTIFICATION-INFO: "+ sbn.getId() + "---" + sbn.getNotification().tickerText + "---" + sbn.getPackageName());  //Logging all maps notifications
+                Log.d("LOG", "**SERVICE***NOTIFICATION-INFO: "+ sbn.getId() + "---" + sbn.getNotification().tickerText + "---" + sbn.getPackageName());  //Logging all maps notifications
                 CharSequence extraTextChar = sbn.getNotification().extras.getCharSequence(Notification.EXTRA_TEXT);
-                Log.d("LOG", "*****NOTIFICATION: " + extraTextChar);  //Logging all maps notification info text
+                Log.d("LOG", "**SERVICE***NOTIFICATION: " + extraTextChar);  //Logging all maps notification info text
 
                 String extraText = extraTextChar.toString();
                 CreateExternalLogFile("\n*" + extraText + "<");
                 parseFromMap(extraText);
             }
         } catch (NullPointerException e) {    //Making sure no nulls try to save
-            Log.d("LOG", "*****FILESAVEFAIL: Null extras.");
+            Log.d("LOG", "**SERVICE***FILESAVEFAIL: Null extras.");
         }
     }
 
@@ -63,6 +63,7 @@ public class NavService extends NotificationListenerService {
         app = ((SmartShirt) this.getApplication());
         ac = app.arduino_controller;
         pc = app.pebble_controller;
+        Log.d("LOG", "**SERVICE***LOCAL CONTROLLERS FILLED");
     }
 
     /* END ABSTRACT METHOD*/
@@ -95,14 +96,28 @@ public class NavService extends NotificationListenerService {
 
     /* PARSING FROM MAP METHODS and CONSTANTS */
     private void parseFromMap(String extraText) {
+        //Make arduino blip only if coming from blank state
+        if (prevSent.equals(" ")) {
+            ac.blip();
+            Log.d("LOG", "**SERVICE***ARDUINO: Sent blip call to arduino interface.");
+        }
+
         //Check to see if there is a '-' in the string
         if (extraText.indexOf('-') != -1) {  //If a dash exists, notification must be location based
+            Log.d("LOG", "**SERVICE***PARSE: Found location message.");
+            Log.d("LOG", "**SERVICE***MESSAGE: " + extraText);
             sendLocationBasedText(extraText);
-        } else if (extraText.charAt(0) == 'H') {  //If a dash does not exist, check for location unknown case
+        } else if (extraText.charAt(0) == 'H') {  //If start with H, non-location data
+            Log.d("LOG", "**SERVICE***PARSE: Found non-location message.");
+            Log.d("LOG", "**SERVICE***MESSAGE: " + extraText);
             sendNoLocationBasedText(extraText);
-        } else if (extraText.charAt(0) == 'R') {   //If no dash and no period, must be at destination
+        } else if (extraText.charAt(0) == 'R') {   //If start with R, recalculating
+            Log.d("LOG", "**SERVICE***PARSE: Found reroute message.");
+            Log.d("LOG", "**SERVICE***MESSAGE: " + extraText);
             sendLostText(extraText);
         } else {  //Exhausted all other cases, you must be at destination
+            Log.d("LOG", "**SERVICE***PARSE: Found destination message.");
+            Log.d("LOG", "**SERVICE***MESSAGE: " + extraText);
             sendDestinationText(extraText);
         }
 
@@ -132,20 +147,24 @@ public class NavService extends NotificationListenerService {
     //sending a turn command - arduino and pebble
     private void sendLocationBasedText(String et) {
         if (prevSent.equals(et)) {   //Dont send a second lost message in a row if this case happens
+            Log.d("LOG", "**SERVICE***PREVFOUND: Caught repeated message.");
             return;
         }
         //Parse distance in feet from message
         double dist = distanceInFeet(et);
+        Log.d("LOG", "**SERVICE***DISTANCE: Calculated distance: " + Double.toString(dist));
 
         //Make arduino choose proper method if the distance to turn is below limit
         if (dist < MIN_DISTANCE_ARDUINO_TURN) {
             //Parse turn
             boolean right = isRight(et);
+            Log.d("LOG", "**SERVICE***TURNTYPE: Is right turn: " + Boolean.toString(right));
             if (right) {
                 ac.turnRight();
             } else {
                 ac.turnLeft();
             }
+            Log.d("LOG", "**SERVICE***ARDUINO: Sent turn call to arduino interface.");
             prevSent = et;
         }
 
@@ -156,7 +175,9 @@ public class NavService extends NotificationListenerService {
             String title = m.group(1);
             String body = m.group(2) + "\n" + m.group(3) + "\n" + m.group(4);
 
+            Log.d("LOG", "**SERVICE***FORMATPCALL: Formatted Pebble interface call, title: " + title + " , body: " + body);
             pc.sendNotification(title, body);
+            Log.d("LOG", "**SERVICE***PEBBLE: Sent turn call to pebble interface.");
             prevSent = et;
         }
     }
@@ -164,18 +185,16 @@ public class NavService extends NotificationListenerService {
     //sending a no location message - arduino and pebble
     private void sendNoLocationBasedText(String et) {
         if (prevSent.equals(et)) {   //Dont send a second lost message in a row if this case happens
+            Log.d("LOG", "**SERVICE***PREVFOUND: Caught repeated message.");
             return;
-        }
-
-        //Make arduino blip only if coming from blank state
-        if (prevSent.equals(" ")) {
-            ac.blip();
         }
 
         //Make pebble show complete string
         String title = et.substring(0, 33);
         String body = et.substring(35);
+        Log.d("LOG", "**SERVICE***FORMATPCALL: Formatted Pebble interface call, title: " + title + " , body: " + body);
         pc.sendNotification(title, body);
+        Log.d("LOG", "**SERVICE***PEBBLE: Sent no location call to pebble interface.");
 
         prevSent = et;
     }
@@ -183,14 +202,17 @@ public class NavService extends NotificationListenerService {
     //sending a Lost message - arduino and pebble
     private void sendLostText(String et) {
         if (prevSent.equals(et)) {   //Dont send a second lost message in a row if this case happens
+            Log.d("LOG", "**SERVER***PREVFOUND: Caught repeated message.");
             return;
         }
 
         //Make alternate buzz on arduino
         ac.reroute();
+        Log.d("LOG", "**SERVICE***ARDUINO: Sent reroute call to arduino interface.");
 
         //Display Lost message on pebble
         pc.sendNotification("Direction unavailable:", et);
+        Log.d("LOG", "**SERVICE***PEBBLE: Sent reroute call to pebble interface.");
 
         prevSent = et;
     }
@@ -200,9 +222,11 @@ public class NavService extends NotificationListenerService {
         //No need to check for double request, destination note ends the nav activity
         //Make all motors buzz on arduino
         ac.arrived();
+        Log.d("LOG", "**SERVICE***ARDUINO: Sent reroute call to arduino interface.");
 
         //Display final location on pebble
         pc.sendNotification("Arrived at:", et);
+        Log.d("LOG", "**SERVICE***PEBBLE: Sent destination call to pebble interface.");
 
         prevSent = " ";  //set prevSent back to blank state to check for begin nav activity
     }
