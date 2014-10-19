@@ -222,6 +222,10 @@ public class NavService extends NotificationListenerService {
             Log.d("LOG", "**SERVICE***ARDUINO: Sent turn call to arduino interface.");
             prevSent = et;
         }
+        else {
+            Log.d("LOG", "**SERVICE***ABORTCALL: Aborted arduino call because too large distance.");
+            Log.d("LOG", "**SERVICE***ABORTDIST: " + Double.toString(dist) + ", PRESET: " + Integer.toString(MIN_DISTANCE_ARDUINO_TURN));
+        }
 
         //Make pebble show message, no distance limit
         if (dist < MIN_DISTANCE_PEBBLE_TURN) {
@@ -232,6 +236,10 @@ public class NavService extends NotificationListenerService {
             pc.sendNotification(tnb[0], tnb[1]);
             Log.d("LOG", "**SERVICE***PEBBLE: Sent turn call to pebble interface.");
             prevSent = et;
+        }
+        else {
+            Log.d("LOG", "**SERVICE***ABORTCALL: Aborted pebble call because too large distance.");
+            Log.d("LOG", "**SERVICE***ABORTDIST: " + Double.toString(dist) + ", PRESET: " + Integer.toString(MIN_DISTANCE_PEBBLE_TURN));
         }
     }
 
