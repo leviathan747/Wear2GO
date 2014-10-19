@@ -16,8 +16,17 @@ import java.io.PrintStream;
  * Created by kylekrynski on 10/18/14.
  */
 public class NavService extends NotificationListenerService {
+    /* CONSTANTS */
+    private final static double FT_IN_MILE = 5280.0;
+    private final static int MIN_DISTANCE_ARDUINO_TURN = 50;  //in feet
+    private final static int MIN_DISTANCE_PEBBLE_TURN = 400;  //in feet
+    /* END CONSTANTS */
+
     /* LOCAL VARIABLES */
     private String prevSent = " ";
+    private SmartShirt app;
+    private ArduinoController ac;
+    private PebbleController pc;
     /* END LOCAL VARIABLES */
 
 
@@ -42,6 +51,16 @@ public class NavService extends NotificationListenerService {
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
     }
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        //Need to have local reference to app, arduino controller, and pebble controller
+        app = ((SmartShirt) this.getApplication());
+        ac = app.arduino_controller;
+        pc = app.pebble_controller;
+    }
+
     /* END ABSTRACT METHOD*/
 
 
@@ -74,9 +93,9 @@ public class NavService extends NotificationListenerService {
     private void parseFromMap(String extraText) {
         //Check to see if there is a '-' in the string
         if (extraText.indexOf('-') != -1) {  //If a dash exists, notification must be location based
-            parseLocationBasedText(extraText);
+            sendLocationBasedText(extraText);
         } else if (extraText.charAt(0) == 'H') {  //If a dash does not exist, check for location unknown case
-            parseNoLocationBasedText(extraText);
+            sendNoLocationBasedText(extraText);
         } else if (extraText.charAt(0) == 'R') {   //If no dash and no period, must be at destination
             sendLostText(extraText);
         } else {  //Exhausted all other cases, you must be at destination
@@ -85,11 +104,30 @@ public class NavService extends NotificationListenerService {
 
     }
 
-    private void parseLocationBasedText(String et) {
+    private double distanceInFeet(String s) {
+        String[] parts = s.split("\\s+");
+        double dist = Integer.parseInt(parts[0]);  //get distance from string parts
+
+        if (parts[1].equals("mi")) {  //need to convert to mi
+            dist = dist * FT_IN_MILE;
+        }
+
+        return dist;
+    }
+
+    private boolean isRight(String s) {
+        String[] parts = s.split("\\s+");
+        return (parts[4].equals("right"));
+    }
+
+    private String parseTurn(String s) {
+        
 
     }
 
-    private void parseNoLocationBasedText(String et) {
+    private String parseTurnSupplement(String s) {
+        int posOfDash = s.indexOf('-');
+
 
     }
 
@@ -98,25 +136,81 @@ public class NavService extends NotificationListenerService {
 
     /* SEND METHODS */
 
-    //sending a Lost message - calling methods to send messages to arduino
+    //sending a turn command - arduino and pebble
+    private void sendLocationBasedText(String et) {
+        if (prevSent.equals(et)) {   //Dont send a second lost message in a row if this case happens
+            return;
+        }
+        //Parse distance in feet from message
+        double dist = distanceInFeet(et);
+
+        //Make arduino choose proper method if the distance to turn is below limit
+        if (dist < MIN_DISTANCE_ARDUINO_TURN) {
+            //Parse turn
+            boolean right = isRight(et);
+            if (right) {
+                ac.turnRight();
+            } else {
+                ac.turnLeft();
+            }
+        }
+
+        //Make pebble show message, no distance limit
+        if (dist < MIN_DISTANCE_PEBBLE_TURN) {
+            //Parse turn string
+            String title = parseTurn(et);
+            //Parse supplement string
+            String body = parseTurnSupplement(et);
+
+            pc.sendNotification(title, body);
+
+        }
+
+        prevSent = et;
+    }
+
+    //sending a no location message - arduino and pebble
+    private void sendNoLocationBasedText(String et) {
+        if (prevSent.equals(et)) {   //Dont send a second lost message in a row if this case happens
+            return;
+        }
+
+        //Make arduino blip only if coming from blank state
+        if (prevSent.equals(" ")) {
+            ac.blip();
+        }
+
+        //Make pebble show complete string
+        String title = et.substring(0, 33);
+        String body = et.substring(35);
+        pc.sendNotification(title, body);
+
+        prevSent = et;
+    }
+
+    //sending a Lost message - arduino and pebble
     private void sendLostText(String et) {
         if (prevSent.equals(et)) {   //Dont send a second lost message in a row if this case happens
             return;
         }
 
         //Make alternate buzz on arduino
+        ac.reroute();
 
         //Display Lost message on pebble
+        pc.sendNotification("Direction unavailable:", et);
 
         prevSent = et;
     }
 
-    //sending (no need to parse) a Destination - calling methods to send messages to arduino and pebble
+    //sending (no need to parse) a Destination - arduino and pebble
     private void sendDestinationText(String et) {
         //No need to check for double request, destination note ends the nav activity
         //Make all motors buzz on arduino
+        ac.arrived();
 
         //Display final location on pebble
+        pc.sendNotification("Arrived at:", et);
 
         prevSent = " ";  //set prevSent back to blank state to check for begin nav activity
     }
