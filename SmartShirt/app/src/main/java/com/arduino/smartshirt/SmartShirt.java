@@ -9,14 +9,21 @@ import android.util.Log;
  */
 public class SmartShirt extends Application {
 
-    public ArduinoController arduino_controller = new ArduinoController();
-    public PebbleController pebble_controller = new PebbleController(this);
+    public ArduinoController arduino_controller;
+    public PebbleController pebble_controller;
+
+    public TestPlatform tp;
 
     /* STANDARD OVERRIDE METHODS */
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d("LOG", "**APPLICATION CREATED OK**");
+
+        arduino_controller = new ArduinoController();
+        pebble_controller = new PebbleController(this);
+
+        tp = new TestPlatform();
 
     }
 

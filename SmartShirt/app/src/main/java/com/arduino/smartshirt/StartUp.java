@@ -22,6 +22,8 @@ public class StartUp extends Activity {
     EditText head;
     EditText body;
     Button send;
+
+    Button test;
     /* END GLOBAL VAR*/
 
     @Override
@@ -47,6 +49,8 @@ public class StartUp extends Activity {
         head = (EditText) findViewById(R.id.pebble_head);
         body = (EditText) findViewById(R.id.pebble_body);
         send = (Button) findViewById(R.id.send_btn);
+
+        test = (Button) findViewById(R.id.test_btn);
 
         // set button listeners
         left.setOnClickListener(new Button.OnClickListener() {
@@ -80,6 +84,12 @@ public class StartUp extends Activity {
                 String peb_head = head.getText().toString();
                 String peb_body = body.getText().toString();
                 app.pebble_controller.sendNotification(peb_head, peb_body);
+            }
+        });
+
+        test.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                app.tp.runTest();
             }
         });
 
