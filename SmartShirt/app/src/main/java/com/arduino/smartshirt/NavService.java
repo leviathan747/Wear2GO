@@ -29,6 +29,7 @@ public class NavService extends NotificationListenerService {
     /* LOCAL VARIABLES */
     private String prevSent = " ";
     private double prevDist = 0;
+    private double prevDistARD = -1;
     private String prevHad = " ";
     private SmartShirt app;
     private ArduinoController ac;
@@ -242,7 +243,7 @@ public class NavService extends NotificationListenerService {
         int right = isRightOrLeft(et);
 
         //Make arduino choose proper method if the distance to turn is below limit
-        if (dist == DISTANCE_ARDUINO_TURN) {
+        if (dist == DISTANCE_ARDUINO_TURN /*|| ((dist < DISTANCE_ARDUINO_TURN) && (prevDistARD != DISTANCE_ARDUINO_TURN))*/) {
             Log.d("LOG", "**SERVICE***TURNTYPE: Is right turn: " + Integer.toString(right));
             if (right == 1) {
                 ac.turnRight();
@@ -253,10 +254,12 @@ public class NavService extends NotificationListenerService {
             }
             Log.d("LOG", "**SERVICE***ARDUINO: Sent turn call to arduino interface.");
             prevSent = et;
+            prevDistARD = dist;
         }
         else {
             Log.d("LOG", "**SERVICE***ABORTCALL: Aborted arduino call because too distance not correct.");
             Log.d("LOG", "**SERVICE***ABORTDIST: " + Double.toString(dist) + ", PRESET: " + Integer.toString(DISTANCE_ARDUINO_TURN));
+            prevDistARD = dist;
         }
 
         //Make pebble show message, no distance limit
