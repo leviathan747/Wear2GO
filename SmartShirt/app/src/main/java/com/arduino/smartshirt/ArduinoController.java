@@ -8,12 +8,12 @@ import android.util.Log;
 public class ArduinoController {
 
     // CONSTANTS
-    private static final String ARDUINO_HOST = "192.168.240.1/arduino/digital";
-    private static final int LEFT_PIN = 12;
-    private static final int RIGHT_PIN = 11;
-    private static final int REROUTE_PIN = 9;
-    private static final int ARRIVED_PIN = 10;
-    private static final int BLIP_PIN = 10;
+    private static final String ARDUINO_HOST = "192.168.240.1/arduino/analog";
+    private static final int LEFT_PIN = 5;
+    private static final int RIGHT_PIN = 4;
+    private static final int REROUTE_PIN = 2;
+    private static final int ARRIVED_PIN = 3;
+    private static final int BLIP_PIN = 3;
 
 
     // send blip signal to Arduino
