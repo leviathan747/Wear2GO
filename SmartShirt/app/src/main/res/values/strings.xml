@@ -15,8 +15,8 @@
     <string name="pebble_body">Enter a body</string>
     <string name="send">Send Notification</string>
 
-    <string name="run_tests">Run Tests</string>
-    <string name="test">Test</string>
+    <string name="run_tests">Run Simulation From Log</string>
+    <string name="test">Start Simulation</string>
 
 
 </resources>
