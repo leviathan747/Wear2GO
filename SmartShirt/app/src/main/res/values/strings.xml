@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">SmartShirt</string>
+    <string name="app_name">Wear2GO</string>
 
     <string name="arduino_label">Arduino Events</string>
     <string name="left">Left</string>
