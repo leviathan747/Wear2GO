@@ -22,11 +22,13 @@ public class NavService extends NotificationListenerService {
     /* CONSTANTS */
     private final static double FT_IN_MILE = 5280.0;
     private final static int DISTANCE_ARDUINO_TURN = 50;  //in feet
-    private final static int MIN_DISTANCE_PEBBLE_TURN = 400;  //in feet
+    private final static int MIN_DISTANCE_PEBBLE_TURN = 5280;  //in feet
+    private final static double MIN_STEP = 5280;
     /* END CONSTANTS */
 
     /* LOCAL VARIABLES */
     private String prevSent = " ";
+    private double prevDist = 0;
     private String prevHad = " ";
     private SmartShirt app;
     private ArduinoController ac;
@@ -162,7 +164,7 @@ public class NavService extends NotificationListenerService {
 
     private double distanceInFeet(String s) {
         String[] parts = s.split("\\s+");
-        double dist = Integer.parseInt(parts[0]);  //get distance from string parts
+        double dist = Double.parseDouble(parts[0]);  //get distance from string parts
 
         if (parts[1].equals("mi")) {  //need to convert to mi
             dist = dist * FT_IN_MILE;
@@ -225,14 +227,15 @@ public class NavService extends NotificationListenerService {
             Log.d("LOG", "**SERVICE***PREVFOUND: Caught repeated message.");
             return;
         }
-        /*  ONLY USE IF WANT TO STOP NOTIFICATION ON AUTO RECALCULATE
+        /*  ONLY USE IF WANT TO STOP NOTIFICATION ON AUTO RECALCULATE */
         if (compareMessagesWithoutDest(prevSent, et)) {
-            Log.d("LOG", "**SERVICE***PREVFOUND: Caught repeated TIME location message.");
+            Log.d("LOG", "**SERVICE***PREVFOUND: Caught repeated DEST location message.");
             return;
-        } */
+        }
 
         //Parse distance in feet from message
         double dist = distanceInFeet(et);
+        double step = Math.abs(dist - prevDist);
         Log.d("LOG", "**SERVICE***DISTANCE: Calculated distance: " + Double.toString(dist));
 
         //Parse turn
@@ -252,12 +255,12 @@ public class NavService extends NotificationListenerService {
             prevSent = et;
         }
         else {
-            Log.d("LOG", "**SERVICE***ABORTCALL: Aborted arduino call because too large distance.");
+            Log.d("LOG", "**SERVICE***ABORTCALL: Aborted arduino call because too distance not correct.");
             Log.d("LOG", "**SERVICE***ABORTDIST: " + Double.toString(dist) + ", PRESET: " + Integer.toString(DISTANCE_ARDUINO_TURN));
         }
 
         //Make pebble show message, no distance limit
-        if (dist <= MIN_DISTANCE_PEBBLE_TURN) {
+        if ((dist <= MIN_DISTANCE_PEBBLE_TURN) || ((dist > MIN_DISTANCE_PEBBLE_TURN) && (step >= MIN_STEP))) {
             //Make matcher object
             String[] tnb = parseTitleandBody(et, right);
 
@@ -265,10 +268,12 @@ public class NavService extends NotificationListenerService {
             pc.sendNotification(tnb[0], tnb[1]);
             Log.d("LOG", "**SERVICE***PEBBLE: Sent turn call to pebble interface.");
             prevSent = et;
+            prevDist = dist;
         }
         else {
             Log.d("LOG", "**SERVICE***ABORTCALL: Aborted pebble call because too large distance.");
-            Log.d("LOG", "**SERVICE***ABORTDIST: " + Double.toString(dist) + ", PRESET: " + Integer.toString(MIN_DISTANCE_PEBBLE_TURN));
+            Log.d("LOG", "**SERVICE***ABORTDIST: " + Double.toString(dist) + ", PRESET: " + Integer.toString(MIN_DISTANCE_PEBBLE_TURN) + ", STEP: " + Double.toString(MIN_STEP));
+            prevDist = 0;
         }
     }
 
@@ -360,9 +365,9 @@ public class NavService extends NotificationListenerService {
     //return a notification string without its destination distance, returns null if cant find removal point
     private String withoutDest(String a) {
         int end = a.length();
-        int curChar = a.charAt(end-1);
+        int curChar = (end-1);
         while (a.charAt(curChar) != '\n') {
-            curChar = curChar - 1;
+            curChar--;
             if (curChar < 0) {
                 Log.d("LOG", "**SERVICE***REMOVAL: Estimated Destination Removed Unsuccessfully.");
                 Log.d("LOG", "**SERVICE***REMOVAL: " + a);
