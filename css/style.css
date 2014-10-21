@@ -1,0 +1,64 @@
+body {
+    background-color: gray;
+    color: white;
+    font-size: 12pt;
+}
+            
+a {color:green}
+a:hover,visited,active {color:green}
+
+code {color:black;background:#404040}
+
+.background-texture {
+    background: -webkit-linear-gradient(#404040, #606060, #404040); /* Chrome10+,Safari5.1+ */
+}
+
+.hidden-mobile {
+    display: none;
+    visibility: hidden;
+}
+.hidden-desktop {
+    display: inherit;
+    visibility: visible;
+}
+
+.header {
+    background: black;
+    -webkit-user-select:none
+}
+
+.text-body {
+    background: #303030;
+}
+
+/* Desktop Styles */
+@media (min-device-width: 992px) {
+    .header {
+        border-radius: 10px;
+    }
+
+    .text-body {
+        border-radius: 10px;
+    }
+
+    .hidden-mobile {
+        display: inherit;
+        visibility: visible;
+    }
+    .hidden-desktop {
+        display: none;
+        visibility: hidden;
+    }
+
+}
+
+@media print {
+    body {
+        background-color: white;
+        color: black;
+    }
+    .print-hidden {
+        display: none;
+        visibility: hidden;
+    }
+}
