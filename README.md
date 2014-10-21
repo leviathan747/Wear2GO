@@ -1,5 +1,6 @@
 Wear2GO
 ==========
+levistarrett.com/Wear2GO
 
 ## Inspiration:
 People need to get to places. It is unsafe to look at your phone while walking/skating/riding a bike. Our solution elegantly combines style and technology to produce a convenient navigation experience.
