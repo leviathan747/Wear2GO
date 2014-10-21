@@ -8,7 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 //This activity is simply for the purposes of getting the app to start
-public class StartUp extends Activity {
+public class TestPlatformActivity extends Activity {
 
     /* GLOBAL VARIABLES */
     private final Activity this_activity = this;
@@ -31,9 +31,6 @@ public class StartUp extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Intent intent = new Intent(this, NavService.class);
-        startService(intent);
 
         // render the content view
         setContentView(R.layout.test_platform);

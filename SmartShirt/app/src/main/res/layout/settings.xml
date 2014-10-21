@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/activity_horizontal_margin">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/settings_label"
+        android:id="@+id/settings_label"
+        android:gravity="center"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/settings_btn"
+        android:id="@+id/settings_btn"
+        android:layout_below="@+id/settings_label"
+        android:layout_toEndOf="@+id/padding_space"
+        android:layout_alignParentEnd="true" />
+
+    <Space
+        android:layout_width="1dp"
+        android:layout_height="60dp"
+        android:id="@+id/padding_space"
+        android:layout_below="@+id/settings_btn"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/controllers_label"
+        android:id="@+id/controllers_label"
+        android:layout_below="@+id/padding_space"
+        android:gravity="center"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true" />
+
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/pebble_controller"
+        android:id="@+id/pebble_controller"
+        android:layout_below="@+id/controllers_label"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true" />
+
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/arduino_controller"
+        android:id="@+id/arduino_controller"
+        android:layout_below="@+id/pebble_controller"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true" />
+
+    <Space
+        android:layout_width="1dp"
+        android:layout_height="60dp"
+        android:id="@+id/padding_space2"
+        android:layout_below="@+id/arduino_controller"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/test_label"
+        android:id="@+id/test_label"
+        android:layout_below="@+id/padding_space2"
+        android:gravity="center"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/test_btn"
+        android:id="@+id/test_btn"
+        android:layout_below="@+id/test_label"
+        android:layout_alignEnd="@+id/settings_btn"
+        android:layout_toEndOf="@+id/padding_space2" />
+
+
+
+</RelativeLayout>

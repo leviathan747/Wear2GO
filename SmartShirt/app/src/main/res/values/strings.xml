@@ -18,5 +18,15 @@
     <string name="run_tests">Run Simulation From Log</string>
     <string name="test">Start Simulation</string>
 
+    <string name="settings_label">Enable Wear2GO to access notifications in settings</string>
+    <string name="settings_btn">Go to settings</string>
+
+    <string name="controllers_label">Enable/Disable Controllers</string>
+    <string name="pebble_controller">Enable Pebble Controller</string>
+    <string name="arduino_controller">Enable Arduino Controller</string>
+
+    <string name="test_label">Test Platform</string>
+    <string name="test_btn">Open test platform</string>
+
 
 </resources>
