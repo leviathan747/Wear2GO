@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * Created by levistarrett on 10/18/14.
  */
-public class PebbleController {
+public class PebbleController extends Controller {
 
     // parent app pointer
     private Application parentApp;
@@ -25,6 +25,11 @@ public class PebbleController {
 
     // send alert to pebble
     public void sendNotification(String title, String body) {
+        if (!enabled()) {
+            Log.d("LOG", "**PEBBLE CONTROLLER DISABLED**");
+            return;
+        }
+
         Log.d("LOG", "**CALLING: sendNotification() **");
 
         // validate arguments

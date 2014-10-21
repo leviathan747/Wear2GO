@@ -5,7 +5,7 @@ import android.util.Log;
 /**
  * Created by levistarrett on 10/18/14.
  */
-public class ArduinoController {
+public class ArduinoController extends Controller {
 
     // CONSTANTS
     private static final String ARDUINO_HOST = "192.168.240.1/arduino/command";
@@ -18,6 +18,11 @@ public class ArduinoController {
 
     // send blip signal to Arduino
     public void blip() {
+        if (!enabled()) {
+            Log.d("LOG", "**ARDUINO CONTROLLER DISABLED**");
+            return;
+        }
+
         Log.d("LOG", "**CALLING: blip() **");
 
         // http interface
@@ -32,6 +37,11 @@ public class ArduinoController {
 
     // send turn left signal to Arduino
     public void turnLeft() {
+        if (!enabled()) {
+            Log.d("LOG", "**ARDUINO CONTROLLER DISABLED**");
+            return;
+        }
+
         Log.d("LOG", "**CALLING: turnLeft() **");
 
         // http interface
@@ -46,6 +56,11 @@ public class ArduinoController {
 
     // send turn right signal to Arduino
     public void turnRight() {
+        if (!enabled()) {
+            Log.d("LOG", "**ARDUINO CONTROLLER DISABLED**");
+            return;
+        }
+
         Log.d("LOG", "**CALLING: turnRight() **");
 
         // http interface
@@ -60,6 +75,11 @@ public class ArduinoController {
 
     // send reroute Arduino
     public void reroute() {
+        if (!enabled()) {
+            Log.d("LOG", "**ARDUINO CONTROLLER DISABLED**");
+            return;
+        }
+
         Log.d("LOG", "**CALLING: reroute() **");
 
         // http interface
@@ -74,6 +94,11 @@ public class ArduinoController {
 
     // send arrived Arduino
     public void arrived() {
+        if (!enabled()) {
+            Log.d("LOG", "**ARDUINO CONTROLLER DISABLED**");
+            return;
+        }
+
         Log.d("LOG", "**CALLING: arrived() **");
 
         // http interface
